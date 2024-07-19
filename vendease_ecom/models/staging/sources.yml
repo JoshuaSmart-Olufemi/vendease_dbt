@@ -12,23 +12,54 @@ sources:
       - name: customers
         description: >
           Contains demographic information about each customer 
+        columns: 
+          - name: customer_id 
+            tests:
+              - unique
+              - not_null
 
       - name: order_items
         description: >
           Contains details about each item in an order
+        columns:
+          - name: order_item_id
+            tests:
+              - not_null 
+          - name: order_id
+            tests: 
+              - not_null
 
       - name: order_payments
         description: >
           Contains details about payments made for each order
+        columns:
+          - name: order_id
+            tests:
+              - not_null
 
       - name: orders
         description: >
           Contains details about every order made by customers
+        columns:
+          - name: order_id
+            tests:
+              - not_null
+              - unique
 
       - name: products
         description: >
           Contains details on every product customers can purchase
+        columns:
+          - name: product_id
+            tests:
+              - unique
+              - not_null
 
       - name: sellers
         description: >
           Contains details on merchant/seller identities and their locations
+        columns:
+          - name: seller_id
+            tests:
+              - not_null
+              - unique 
