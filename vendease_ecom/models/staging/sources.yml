@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+
+  - name: ecom # name of the source 
+    description: 'details on various transactions concerning: customers, orders, sellers, products & payments '
+    schema: public # this is the schema our raw data lives in
+    database: vendease_db # this is the name of our database
+
+
+    tables:
+      - name: customers
+        description: >
+          Contains demographic information about each customer 
+
+      - name: order_items
+        description: >
+          Contains details about each item in an order
+
+      - name: order_payments
+        description: >
+          Contains details about payments made for each order
+
+      - name: orders
+        description: >
+          Contains details about every order made by customers
+
+      - name: products
+        description: >
+          Contains details on every product customers can purchase
+
+      - name: sellers
+        description: >
+          Contains details on merchant/seller identities and their locations
