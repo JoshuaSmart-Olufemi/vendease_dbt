@@ -1,0 +1,9 @@
+version: 2
+
+models:
+
+  - name: int_churn_models
+  - name: int_customer_order_details
+  - name: int_customer_segmentation
+  - name: int_payment_details
+  - name: int_product_details

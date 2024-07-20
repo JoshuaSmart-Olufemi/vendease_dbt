@@ -6,6 +6,7 @@ base as (
     o.customer_id
     , count(o.order_id) as order_count
     , date_part ('day', o.order_estimated_delivery_dt - o.order_delivered_customer_dt )  as days_bw_order_and_delivery
+    , sum(oi.price) as customer_spend
     , sum(oi.price + oi.freight_value) as order_value
     , sum(oi.price + oi.freight_value) / count(o.order_id) as average_order_value
     from {{ ref('stg_ecom__orders') }} as o
