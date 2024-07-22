@@ -3,7 +3,17 @@ version: 2
 models:
 
   - name: int_churn_models
+    description: >
+      a model showing each customer's propensity to churn and the last date they bought something
   - name: int_customer_order_details
+    description: >
+      a model showing metrics such as order_value, aov, customer_spend & days between order & delivery for each customer
   - name: int_customer_segmentation
+    description: >
+      a model  showing customers being segmented based on their buying & spending patterns
   - name: int_payment_details
+    description: >
+      a model showing order_count by each payment type & the payment type usage percentage 
   - name: int_product_details
+    description: >
+      a model showing revenue generated, order_count & product_count by product category name
