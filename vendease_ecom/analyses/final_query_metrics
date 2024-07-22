@@ -4,9 +4,9 @@ with customer_orders as (
 	cu.customer_id
 	, cu.customer_city
 	, o.order_id
-	, o.order_purchase_timestamp
-	from customers as cu
-	left join orders as o
+	, o.order_purchase_ts
+	from {{ ref('stg_ecom__customers') }} as cu
+	left join {{ ref('stg_ecom__orders') }} as o
 	on cu.customer_id = o.customer_id
 	)
 
@@ -19,8 +19,8 @@ with customer_orders as (
 	, round(sum(oi.price::numeric + oi.freight_value::numeric) / count(o.order_id), 2) as average_order_value
 	, sum(oi.price::numeric) as total_spend_per_customer
 	, count(o.order_id) as total_number_of_orders
-	from orders as o
-	left join order_items as oi
+	from {{ ref('stg_ecom__orders')}} as o
+	left join {{ ref('stg_ecom__order_items') }} as oi
 	on o.order_id = oi.order_id
 	group by 1,2
 	having sum(oi.price::numeric) is not null
@@ -31,32 +31,29 @@ with customer_orders as (
 	
 	select
 	o.customer_id
-	, to_char(o.order_purchase_timestamp::date, 'day') as day_of_week
-	--, total_spend as total_spend_per_customer
-	, RANK() OVER (PARTITION BY o.customer_id ORDER BY total_spend_per_customer DESC) AS day_rank
-	--, rank() over (partition by to_char(o.order_purchase_timestamp::date, 'day') order by total_spend_per_customer desc) as day_rank
+	, to_char(o.order_purchase_ts, 'day') as day_of_week
+	, rank() over (partition by o.customer_id order by total_spend_per_customer desc) as day_rank
 	from customer_orders as o
 	left join order_metrics as om
 	on om.order_id = o.order_id
 	)
-	--select * from day_of_highest_purchase
+	
 , third_order_value as (
     select
         customer_id,
-        coalesce(max(case when row_num = 3 then total_order_value end), 0) AS third_order_value
+        coalesce(max(case when row_num = 3 then total_order_value end), 0) as third_order_value
     from (select
             om.customer_id,
             total_order_value,
-		    --ROW_NUMBER() OVER (PARTITION BY om.customer_id ORDER BY co.order_purchase_timestamp) AS row_num
-            count(co.order_id) over (partition by co.order_purchase_timestamp order by co.order_purchase_timestamp::timestamp) AS row_num
-        FROM order_metrics as om
+		    row_number() over (partition by om.customer_id order by co.order_purchase_ts) as row_num
+        from order_metrics as om
 		left join customer_orders as co
 		on co.customer_id = om.customer_id
     ) sub
     group by customer_id
 	
 	)
---select * from third_order_value
+
 , finals as (
 	
 	select
@@ -72,7 +69,7 @@ with customer_orders as (
 	on co.customer_id = om.customer_id
 	left join day_of_highest_purchase as dhp 
 	on om.customer_id = dhp.customer_id and dhp.day_rank = 1
-	inner join third_order_value tov on co.customer_id = tov.customer_id
+	left join third_order_value tov on co.customer_id = tov.customer_id
 	order by co.customer_id
 
 )
